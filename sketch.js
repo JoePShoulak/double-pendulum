@@ -1,7 +1,5 @@
-const r1 = 100;
-const r2 = 100;
-const m1 = 10;
-const m2 = 10;
+const LENGTH = 100;
+const MASS = 10;
 const GRAVITY = 0.1;
 const DAMPENING = 1;
 let avoidedFirstPixel = false;
@@ -93,8 +91,10 @@ function setup() {
   fill("white");
   strokeWeight(2);
 
-  const p1 = new Pendulum(r1, m1, { x: 0, y: 0 });
-  const p2 = new Pendulum(r2, m2, p1.bob, p1);
+  const constraint = min(width, height) / 5;
+
+  const p1 = new Pendulum(constraint, MASS, { x: 0, y: 0 });
+  const p2 = new Pendulum(constraint, MASS, p1.bob, p1);
   p1.angle = random(0, TWO_PI);
   p2.angle = random(0, TWO_PI);
 
