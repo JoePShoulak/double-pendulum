@@ -48,7 +48,6 @@ function getStartingAngles() {
     angles = [random(TWO_PI), random(TWO_PI)];
     conserve = 3 * cos(angles[0] - HALF_PI) + cos(angles[1] - HALF_PI);
   } while (conserve > 2);
-  console.log(conserve);
 
   return angles;
 }
