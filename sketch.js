@@ -41,12 +41,9 @@ function windowResized() {
 }
 
 function getStartingAngles() {
-  let conserve;
-  let angles;
-
   do {
-    angles = [random(TWO_PI), random(TWO_PI)];
-    conserve = 3 * cos(angles[0] - HALF_PI) + cos(angles[1] - HALF_PI);
+    var angles = [random(TWO_PI), random(TWO_PI)];
+    var conserve = 3 * cos(angles[0] - HALF_PI) + cos(angles[1] - HALF_PI);
   } while (conserve > 2);
 
   return angles;

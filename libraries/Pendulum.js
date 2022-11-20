@@ -4,10 +4,22 @@ function clampAndDamp(value, clamp, damp) {
 
 class Pendulum {
   static gravity = 0.1;
-  static damp = 0.9;
+  static damp = 0.8;
   static clamp = 0.01;
+  static heavyDamp = 0.2;
+  static fastCountLimit = 100;
+  static fastSpeed = 0.1;
 
   static calculate(p1, p2) {
+    if (p1.runaway || p2.runaway) {
+      console.log("Pendulum has run away");
+      p1.acc = 0;
+      p2.acc = 0;
+      p1.vel *= Pendulum.heavyDamp ** 2;
+      p2.vel *= Pendulum.heavyDamp;
+      return [p1, p2];
+    }
+
     const g = Pendulum.gravity;
     const [m1, m2] = [p1.mass, p2.mass];
     const [L1, L2] = [p1.length, p2.length];
@@ -41,7 +53,10 @@ class Pendulum {
     this.angle = HALF_PI;
     this.parent = parent;
     this.root = root;
+    this.runaway = false;
     this.setBob();
+
+    this.speedCount = 0;
 
     this.vel = 0;
     this.acc = 0;
@@ -59,5 +74,9 @@ class Pendulum {
     this.angle += this.vel;
     this.setBob();
     if (this.parent) this.root = this.parent.bob;
+
+    this.speedCount =
+      Math.abs(this.vel) > Pendulum.fastSpeed ? this.speedCount + 1 : 0;
+    this.runaway = this.speedCount > Pendulum.fastCountLimit;
   }
 }
