@@ -1,7 +1,11 @@
+function clampAndDamp(value, clamp, damp) {
+  return max(min(value, clamp), -clamp) * damp;
+}
+
 class Pendulum {
   static gravity = 0.1;
   static damp = 0.9;
-  static clamp = 10;
+  static clamp = 0.01;
 
   static calculate(p1, p2) {
     const g = Pendulum.gravity;
@@ -25,8 +29,8 @@ class Pendulum {
     const a1_den = L1 * den_part;
     const a2_den = L2 * den_part;
 
-    p1.acc = min(Pendulum.clamp, (a1_num / a1_den) * Pendulum.damp);
-    p2.acc = min(Pendulum.clamp, (a2_num / a2_den) * Pendulum.damp);
+    p1.acc = clampAndDamp(a1_num / a1_den, Pendulum.clamp, Pendulum.damp);
+    p2.acc = clampAndDamp(a2_num / a2_den, Pendulum.clamp, Pendulum.damp);
 
     return [p1, p2];
   }
