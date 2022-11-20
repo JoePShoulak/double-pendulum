@@ -1,7 +1,7 @@
 /* == SETTINGS == */
 const MASS = 5;
-const BG_COLOR = 20;
-const MAIN_STROKE = 128;
+const BG_COLOR = 0;
+const MAIN_STROKE = 180;
 const STROKE_RATE = 0.3;
 
 /* == VARIABLES == */
@@ -71,6 +71,7 @@ function draw() {
   strokeColor += STROKE_RATE;
   strokeColor = min(MAIN_STROKE, strokeColor);
   bgCanvas.stroke(strokeColor);
+  bgCanvas.background(BG_COLOR, 3);
 
   image(bgCanvas, 0, 0);
   translate(width / 2, height / 2);
