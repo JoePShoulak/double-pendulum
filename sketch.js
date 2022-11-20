@@ -40,13 +40,25 @@ function windowResized() {
   createBackground();
 }
 
+function getStartingAngles() {
+  let conserve;
+  let angles;
+
+  do {
+    angles = [random(TWO_PI), random(TWO_PI)];
+    conserve = 3 * cos(angles[0] - HALF_PI) + cos(angles[1] - HALF_PI);
+  } while (conserve > 2);
+  console.log(conserve);
+
+  return angles;
+}
+
 function resetPendulumns() {
   const constraint = min(width, height) / 5;
 
   p1 = new Pendulum(constraint, MASS, { x: 0, y: 0 });
   p2 = new Pendulum(constraint, MASS, p1.bob, p1);
-  p1.angle = random(TWO_PI);
-  p2.angle = random(TWO_PI);
+  [p1.angle, p2.angle] = getStartingAngles();
 
   strokeColor = BG_COLOR;
 }
