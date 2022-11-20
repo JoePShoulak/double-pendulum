@@ -1,12 +1,10 @@
 /* == SETTINGS == */
-const MASS = 1;
-const GRAVITY = 0.1;
+const MASS = 5;
 const BG_COLOR = 20;
 const MAIN_STROKE = 128;
 const STROKE_RATE = 0.3;
 
 /* == VARIABLES == */
-let avoidedFirstPixel = false;
 let bgCanvas;
 let strokeColor;
 let p1, p2;
@@ -25,7 +23,6 @@ function createBackground(reset = false) {
   bgCanvas = createGraphics(width, height);
   bgCanvas.background(BG_COLOR);
   bgCanvas.strokeWeight(2);
-
   bgCanvas.stroke(strokeColor);
 
   if (prevBg && !reset) {
@@ -36,7 +33,6 @@ function createBackground(reset = false) {
 }
 
 function windowResized() {
-  avoidedFirstPixel = false;
   resizeCanvas(innerWidth, innerHeight);
   createBackground();
 }
@@ -52,7 +48,7 @@ function resetPendulumns() {
   strokeColor = BG_COLOR;
 }
 
-function reset(e = null) {
+function resetSketch(e = null) {
   e?.preventDefault();
   resetPendulumns();
   createBackground(true);
@@ -60,10 +56,12 @@ function reset(e = null) {
 
 function setup() {
   createCanvas(innerWidth, innerHeight);
-  document.querySelector(".p5Canvas").addEventListener("contextmenu", reset);
   stroke("white");
   fill("white");
   strokeWeight(2);
+  document
+    .querySelector(".p5Canvas")
+    .addEventListener("contextmenu", resetSketch);
 
   resetPendulumns();
   createBackground();
@@ -77,13 +75,12 @@ function draw() {
   image(bgCanvas, 0, 0);
   translate(width / 2, height / 2);
 
-  Pendulum.calculate(p1, p2);
-  [p1, p2].forEach((p) => {
+  Pendulum.calculate(p1, p2).forEach((p) => {
     p.update();
     drawPendulum(p);
   });
 
-  if (avoidedFirstPixel) {
+  if (true) {
     const px = p2.bob;
 
     bgCanvas.line(
@@ -94,7 +91,5 @@ function draw() {
     );
 
     prevPx = px;
-  } else {
-    avoidedFirstPixel = true; // FIXME
   }
 }
