@@ -1,78 +1,34 @@
-const LENGTH = 100;
-const MASS = 10;
+/* == SETTINGS == */
+const MASS = 1;
 const GRAVITY = 0.1;
-const DAMPENING = 1;
+const BG_COLOR = 20;
+const MAIN_STROKE = 128;
+const STROKE_RATE = 0.3;
+
+/* == VARIABLES == */
 let avoidedFirstPixel = false;
 let bgCanvas;
+let strokeColor;
+let p1, p2;
+let prevPx = {};
 
-class Pendulum {
-  constructor(length, mass, root, parent = null) {
-    this.length = length;
-    this.mass = mass;
-    this.angle = HALF_PI;
-    this.parent = parent;
-    this.root = root;
-    this.setBob();
-
-    this.vel = 0;
-    this.acc = 0;
-  }
-
-  setBob() {
-    this.bob = {
-      x: this.root.x + this.length * Math.cos(this.angle),
-      y: this.root.y + this.length * Math.sin(this.angle),
-    };
-  }
-
-  update() {
-    this.vel += this.acc;
-    this.angle += this.vel;
-    this.setBob();
-    if (this.parent) this.root = this.parent.bob;
-  }
-}
-
-function animatePendulums(p1, p2) {
-  const g = GRAVITY;
-  const [m1, m2] = [p1.mass, p2.mass];
-  const [L1, L2] = [p1.length, p2.length];
-  const [t1, t2] = [p1.angle - HALF_PI, p2.angle - HALF_PI];
-  const [v1, v2] = [p1.vel, p2.vel];
-
-  const a1_num =
-    -g * (2 * m1 + m2) * sin(t1) -
-    m2 * g * sin(t1 - t2) -
-    2 * sin(t1 - t2) * m2 * (v2 ** 2 * L2 + v1 ** 2 * L1 * cos(t1 - t2));
-  const a2_num =
-    2 *
-    sin(t1 - t2) *
-    (v1 ** 2 * L1 * (m1 + m2) +
-      g * (m1 + m2) * cos(t1) +
-      v2 ** 2 * L2 * m2 * cos(t1 - t2));
-  const a1_den = L1 * (2 * m1 + m2 - m2 * cos(2 * t1 - 2 * t2));
-  const a2_den = L2 * (2 * m1 + m2 - m2 * cos(2 * t1 - 2 * t2));
-
-  p1.acc = (a1_num / a1_den) * DAMPENING;
-  p2.acc = (a2_num / a2_den) * DAMPENING;
-}
-
-const pendulums = [];
+/* == HELPER CLASS == */
 
 function drawPendulum(p) {
   line(p.root.x, p.root.y, p.bob.x, p.bob.y);
   circle(p.bob.x, p.bob.y, p.mass);
 }
 
-function createBackground() {
+function createBackground(reset = false) {
   const prevBg = bgCanvas;
 
   bgCanvas = createGraphics(width, height);
-  bgCanvas.background(20);
+  bgCanvas.background(BG_COLOR);
   bgCanvas.strokeWeight(2);
-  bgCanvas.stroke(128);
 
-  if (prevBg) {
+  bgCanvas.stroke(strokeColor);
+
+  if (prevBg && !reset) {
     const dx = width - prevBg.width;
     const dy = height - prevBg.height;
     bgCanvas.image(prevBg, dx / 2, dy / 2);
@@ -85,45 +41,58 @@ function windowResized() {
   createBackground();
 }
 
+function resetPendulumns() {
+  const constraint = min(width, height) / 5;
+
+  p1 = new Pendulum(constraint, MASS, { x: 0, y: 0 });
+  p2 = new Pendulum(constraint, MASS, p1.bob, p1);
+  p1.angle = random(TWO_PI);
+  p2.angle = random(TWO_PI);
+
+  strokeColor = BG_COLOR;
+}
+
+function reset(e = null) {
+  e?.preventDefault();
+  resetPendulumns();
+  createBackground(true);
+}
+
 function setup() {
   createCanvas(innerWidth, innerHeight);
+  document.querySelector(".p5Canvas").addEventListener("contextmenu", reset);
   stroke("white");
   fill("white");
   strokeWeight(2);
 
-  const constraint = min(width, height) / 5;
-
-  const p1 = new Pendulum(constraint, MASS, { x: 0, y: 0 });
-  const p2 = new Pendulum(constraint, MASS, p1.bob, p1);
-  p1.angle = random(0, TWO_PI);
-  p2.angle = random(0, TWO_PI);
-
-  pendulums.push(p1);
-  pendulums.push(p2);
-
+  resetPendulumns();
   createBackground();
 }
 
-let prevPx = {};
-
 function draw() {
+  strokeColor += STROKE_RATE;
+  strokeColor = min(MAIN_STROKE, strokeColor);
+  bgCanvas.stroke(strokeColor);
+
   image(bgCanvas, 0, 0);
   translate(width / 2, height / 2);
 
-  animatePendulums(...pendulums);
-  pendulums.forEach((p) => {
+  Pendulum.calculate(p1, p2);
+  [p1, p2].forEach((p) => {
     p.update();
     drawPendulum(p);
   });
 
   if (avoidedFirstPixel) {
-    const px = pendulums[1].bob;
+    const px = p2.bob;
+
     bgCanvas.line(
       prevPx.x + width / 2,
       prevPx.y + height / 2,
       px.x + width / 2,
       px.y + height / 2
     );
+
     prevPx = px;
   } else {
     avoidedFirstPixel = true; // FIXME
