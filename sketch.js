@@ -9,6 +9,7 @@ let bgCanvas;
 let strokeColor;
 let p1, p2;
 let prevPx = {};
+let skippedBadPoint = false;
 
 /* == HELPER CLASS == */
 
@@ -33,6 +34,8 @@ function createBackground(reset = false) {
 }
 
 function windowResized() {
+  skippedBadPoint = false;
+
   resizeCanvas(innerWidth, innerHeight);
   createBackground();
 }
@@ -81,7 +84,7 @@ function draw() {
     drawPendulum(p);
   });
 
-  if (true) {
+  if (skippedBadPoint) {
     const px = p2.bob;
 
     bgCanvas.line(
@@ -92,5 +95,7 @@ function draw() {
     );
 
     prevPx = px;
+  } else {
+    skippedBadPoint = true;
   }
 }
