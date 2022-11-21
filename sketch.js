@@ -88,8 +88,7 @@ function draw() {
   translate(width / 2, height / 2);
 
   Pendulum.calculate(p1, p2).forEach((p) => {
-    p.update();
-    drawPendulum(p);
+    p.update(drawPendulum);
   });
 
   if (skippedBadPoint) {

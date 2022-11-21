@@ -69,7 +69,7 @@ class Pendulum {
     };
   }
 
-  update() {
+  update(cb) {
     this.vel += this.acc;
     this.angle += this.vel;
     this.setBob();
@@ -78,5 +78,9 @@ class Pendulum {
     this.speedCount =
       Math.abs(this.vel) > Pendulum.fastSpeed ? this.speedCount + 1 : 0;
     this.runaway = this.speedCount > Pendulum.fastCountLimit;
+
+    if (typeof cb == "function") {
+      cb(this);
+    }
   }
 }
